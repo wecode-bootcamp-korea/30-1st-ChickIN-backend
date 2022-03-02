@@ -25,7 +25,6 @@ class Product(models.Model):
     price             = models.DecimalField(decimal_places=2, max_digits=8)
     description       = models.TextField() 
     thumbnail         = models.URLField(max_length=1000)
-    product_image_id  = models.ForeignKey('ProductImage', on_delete=models.CASCADE)
     sub_category_id   = models.ForeignKey('SubCategory', on_delete=models.CASCADE)
 
     class Meta:
@@ -33,8 +32,8 @@ class Product(models.Model):
 
 
 class ProductImage(models.Model):
-    image_url = models.URLField(max_length=1000)
-    product   = models.ForeignKey('Product', on_delete=models.CASCADE)
+    image_url  = models.URLField(max_length=1000)
+    product_id = models.ForeignKey('Product', on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'product_images'
