@@ -5,28 +5,29 @@ from products.models import Product, Option
 
 
 class Order(models.Model):
-    order_number    = models.UUIDField()
-    address         = models.CharField(max_length=200)
-    created_at      = models.DateTimeField(auto_now_add=True)
-    user_id         = models.ForeignKey('User', on_delete=models.CASCADE)
-    order_status_id = models.ForeignKey('OrderStatus', on_delete=models.CASCADE)
+    order_number = models.UUIDField()
+    address      = models.CharField(max_length=200)
+    user         = models.ForeignKey('User', on_delete=models.CASCADE)
+    order_status = models.ForeignKey('OrderStatus', on_delete=models.CASCADE)
+    created_at   = models.DateTimeField(auto_now_add=True)
+    updated_at   = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = 'orders'
 
 
 class OrderItem(models.Model):
-    quantity   = models.IntegerField()  
-    product_id = models.ForeignKey('Product', on_delete=models.CASCADE)
-    order_id   = models.ForeignKey('Order', on_delete=models.CASCADE)
+    quantity = models.IntegerField()  
+    product  = models.ForeignKey('Product', on_delete=models.CASCADE)
+    order    = models.ForeignKey('Order', on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'order_items'
 
 
 class OrderOption(models.Model):
-    option_id     = models.ForeignKey('Option', on_delete=models.CASCADE)
-    order_item_id = models.ForeignKey('OrderItem', on_delete=models.CASCADE)
+    option     = models.ForeignKey('Option', on_delete=models.CASCADE)
+    order_item = models.ForeignKey('OrderItem', on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'order_options'

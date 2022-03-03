@@ -5,18 +5,18 @@ from products.models import Product
 
 class Cart(models.Model):
     quantity   = models.IntegerField()
+    user       = models.ForeignKey('User', on_delete=models.CASCADE)
+    product    = models.ForeignKey('Product', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    user_id    = models.ForeignKey('User', on_delete=models.CASCADE)
-    product_id = models.ForeignKey('Product', on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'carts'
 
 
 class CartOption(models.Model):
-    product_id = models.ForeignKey('Product', on_delete=models.CASCADE)
-    cart_id    = models.ForeignKey('Cart', on_delete=models.CASCADE)
+    option = models.ForeignKey('Option', on_delete=models.CASCADE)
+    cart   = models.ForeignKey('Cart', on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'cart_options'
