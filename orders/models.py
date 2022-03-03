@@ -1,13 +1,9 @@
 from django.db import models
 
-from users.models import User
-from products.models import Product, Option
-
-
 class Order(models.Model):
     order_number = models.UUIDField()
     address      = models.CharField(max_length=200)
-    user         = models.ForeignKey('User', on_delete=models.CASCADE)
+    user         = models.ForeignKey('users.User', on_delete=models.CASCADE)
     order_status = models.ForeignKey('OrderStatus', on_delete=models.CASCADE)
     created_at   = models.DateTimeField(auto_now_add=True)
     updated_at   = models.DateTimeField(auto_now=True)
@@ -18,7 +14,7 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     quantity = models.IntegerField()  
-    product  = models.ForeignKey('Product', on_delete=models.CASCADE)
+    product  = models.ForeignKey('products.Product', on_delete=models.CASCADE)
     order    = models.ForeignKey('Order', on_delete=models.CASCADE)
 
     class Meta:
@@ -26,7 +22,7 @@ class OrderItem(models.Model):
 
 
 class OrderOption(models.Model):
-    option     = models.ForeignKey('Option', on_delete=models.CASCADE)
+    option     = models.ForeignKey('products.Option', on_delete=models.CASCADE)
     order_item = models.ForeignKey('OrderItem', on_delete=models.CASCADE)
 
     class Meta:
