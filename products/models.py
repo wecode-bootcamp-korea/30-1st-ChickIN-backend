@@ -42,7 +42,7 @@ class ProductImage(models.Model):
 
 
 class Option(models.Model):
-    name  = models.models.CharField(max_length=50)
+    name  = models.CharField(max_length=50)
     price = models.DecimalField(decimal_places=2, max_digits=8)
 
     class Meta:
