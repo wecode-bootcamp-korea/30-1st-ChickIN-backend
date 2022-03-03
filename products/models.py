@@ -12,7 +12,7 @@ class MainCategory(models.Model):
     purchase    = models.ForeignKey('Purchase', on_delete=models.CASCADE)
 
     class Meta:
-        db_table = 'main_categroies'
+        db_table = 'main_categories'
 
 
 class SubCategory(models.Model):
@@ -20,7 +20,8 @@ class SubCategory(models.Model):
     main_category = models.ForeignKey('MainCategory', on_delete=models.CASCADE)
 
     class Meta:
-        db_table = 'sub_categroies'
+        db_table = 'sub_categories'
+
 
 class Product(models.Model):
     name         = models.CharField(max_length=50)
