@@ -29,7 +29,7 @@ class Product(models.Model):
     description  = models.TextField() 
     thumbnail    = models.URLField(max_length=1000)
     sub_category = models.ForeignKey('SubCategory', on_delete=models.CASCADE)
-    option       = models.ManyToManyField('Option', through='ProductOption')
+    options       = models.ManyToManyField('Option', through='ProductOption')
 
     class Meta:
         db_table = 'products'
