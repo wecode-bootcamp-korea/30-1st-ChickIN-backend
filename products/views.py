@@ -7,7 +7,7 @@ class ProductDetailView(View):
     def get(self, request, product_id):
         try:
             product = Product.objects.prefetch_related('productimage_set').get(id=product_id)
-            options = product.options.filter(product__id=product_id)
+            options = product.options.all()
 
             data = {
                     'image'       : [image.image_url for image in product.productimage_set.all()],
