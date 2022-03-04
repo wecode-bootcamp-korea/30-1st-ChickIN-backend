@@ -1,5 +1,7 @@
-from django.http  import JsonResponse
-from django.views import View
+from unicodedata import name
+from django.http      import JsonResponse
+from django.views     import View
+from django.db.models import Q
 
 from products.models import Product, SubCategory
 
@@ -9,15 +11,19 @@ class ProductListView(View):
             main_category = request.GET.get('main_category', None)
             sub_category  = request.GET.get('sub_category', None)
             searching     = request.GET.get('name', None)
-
-            product_list  = []
+            
+            q = Q()
             products = Product.objects.all()
             products = SubCategory.objects.prefetch_related('product_set').filter(main_category_id=main_category)\
         	   if main_category else products
-            products = Product.objects.select_related('sub_category').filter(sub_category_id=sub_category)\
-        	   if sub_category else products
-            products = Product.objects.filter(name__icontains=searching) if searching else products
+            if sub_category:
+                q &= Q(sub_category_id=sub_category)
+            if searching:
+                q &= Q(name__icontains=searching)
+            products = Product.objects.select_related('sub_category').filter(q)\
+                if sub_category or searching else products
 
+            product_list = []
             if main_category:
                 for product in products:
                     product = product.product_set.all()
@@ -29,14 +35,11 @@ class ProductListView(View):
                         })
 
             else:
-                for product in products:
-                    product_list.append(
-                        {
-                            'thumbnail'    : product.thumbnail,
-                            'name'         : product.name,
-                            'price'        : product.price
-                        }
-                    )
+                product_list = [{
+                            'thumbnail' : product.thumbnail,
+                            'name'      : product.name,
+                            'price'     : product.price
+                        } for product in products]
 
             return JsonResponse({'products_list':product_list}, status=200)
 
@@ -45,9 +48,6 @@ class ProductListView(View):
         
         except AttributeError:
             return JsonResponse({'message':'AttributeError'}, status=400)
-        
-        except TypeError:
-            return JsonResponse({'message':'TypeError'}, status=400)
 
 
 class ProductDetailView(View):
