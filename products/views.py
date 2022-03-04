@@ -1,6 +1,5 @@
 from django.http      import JsonResponse
 from django.views     import View
-from django.db.models import Q
 
 from products.models import SubCategory, Product, ProductImage, Option
 
