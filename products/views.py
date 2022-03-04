@@ -1,7 +1,7 @@
 from django.http  import JsonResponse
 from django.views import View
 
-from products.models import Product, Option, ProductOption
+from products.models import Product
 
 class ProductDetailView(View):
     def get(self, request, product_id):
