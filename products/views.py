@@ -10,22 +10,31 @@ class ProductListView(View):
             main_category = request.GET.get('main_category', None)
             sub_category  = request.GET.get('sub_category', None)
             searching     = request.GET.get('name', None)
+            sort          = request.GET.get('sort', None)
             limit         = int(request.GET.get('limit', 36))
             offset        = int(request.GET.get('offset', 0))
+            product_list  = []
             
             q = Q()
+            
             products = Product.objects.all()
-            products = SubCategory.objects.prefetch_related('product_set').filter(main_category_id=main_category)[offset:offset+limit]\
+            products = SubCategory.objects.prefetch_related('product_set').filter(main_category_id=main_category)\
         	   if main_category else products
-
             if sub_category:
                 q &= Q(sub_category_id=sub_category)
             if searching:
                 q &= Q(name__icontains=searching)
-            products = Product.objects.select_related('sub_category').filter(q)[offset:offset+limit]\
-                if sub_category or searching else products
+            products = Product.objects.select_related('sub_category').filter(q)\
+                if sub_category or searching else products     
+            if sort:
+                sort_type = {
+                    '0' : '?',
+                    '1' : '-price',
+                    '2' : 'price'
+                }
+                products = products.order_by(sort_type[sort])
+            products = products[offset:offset+limit]
 
-            product_list = []
             if main_category:
                 for product in products:
                     product = product.product_set.all()
@@ -47,9 +56,6 @@ class ProductListView(View):
 
         except Product.DoesNotExist:
             return JsonResponse({'message':'NOT_FOUND'}, status=404)
-        
-        except AttributeError:
-            return JsonResponse({'message':'AttributeError'}, status=400)
 
 
 class ProductDetailView(View):
