@@ -10,16 +10,19 @@ class ProductListView(View):
             main_category = request.GET.get('main_category', None)
             sub_category  = request.GET.get('sub_category', None)
             searching     = request.GET.get('name', None)
+            limit         = int(request.GET.get('limit', 36))
+            offset        = int(request.GET.get('offset', 0))
             
             q = Q()
             products = Product.objects.all()
-            products = SubCategory.objects.prefetch_related('product_set').filter(main_category_id=main_category)\
+            products = SubCategory.objects.prefetch_related('product_set').filter(main_category_id=main_category)[offset:offset+limit]\
         	   if main_category else products
+
             if sub_category:
                 q &= Q(sub_category_id=sub_category)
             if searching:
                 q &= Q(name__icontains=searching)
-            products = Product.objects.select_related('sub_category').filter(q)\
+            products = Product.objects.select_related('sub_category').filter(q)[offset:offset+limit]\
                 if sub_category or searching else products
 
             product_list = []
