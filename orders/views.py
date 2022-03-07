@@ -57,3 +57,52 @@ class OrderView(View):
 
         except transaction.TransactionManagementError:
             return JsonResponse({'message':'TransactionManagementError'}, status=401)  
+
+    @login_required
+    def get(self, request):
+        user          = request.user
+        order         = request.GET.get('id',)
+        order_items   = Order.objects.get(id=order).orderitem_set.all()
+        order_options = OrderItem.objects.get(order_id=order).orderoption_set.all()
+        if order_options:
+            total_price   = int(Order.objects.filter(id=order)\
+                            .annotate(total=Sum(F('orderitem__product__price')*F('orderitem__quantity')\
+                                +F('orderitem__orderoption__option__price')))[0].total)
+        else:
+            total_price   = int(Order.objects.filter(id=order)\
+                            .annotate(total=Sum(F('orderitem__product__price')*F('orderitem__quantity')))[0].total)
+        
+        order_list = [{
+            'order_id'   : order,
+            'user'       : User.objects.get(id=user.id).username,
+            'address'    : Order.objects.get(id=order).address,
+            'order_items': [{
+                'product_id'    : order_item.product.id,
+                'quantity'      : order_item.quantity,
+                'product_name'  : order_item.product.name,
+                'product_image' : order_item.product.thumbnail,
+                'price'         : int((order_item.quantity)*(order_item.product.price))
+            } for order_item in order_items],
+            'product_options': [{
+                'option_name'  : order_option.option.name,
+                'option_price' : order_option.option.price
+            } for order_option in order_options],
+            'total_price' : total_price
+        }]
+
+        return JsonResponse({'order_list':order_list}, status=200)
+
+    @login_required
+    def patch(self, request):
+        data     = json.loads(request.body)
+        order_id = data['order_id']
+
+        try:
+            Order.objeccts.filter(id=order_id).update(order_status=OrederStatusEnum.ORDER_CANCELLED.value)
+            return JsonResponse({'message':'SUCCESS'}, status=200)
+
+        except Order.DoesNotExist:
+            return JsonResponse({'message':'NOT_FOUND'}, status=404)
+
+        except KeyError:
+            return JsonResponse({'message':'KEY_ERROR'}, status=400)
