@@ -69,9 +69,8 @@ class OrderView(View):
     def get(self, request):
         user          = request.user
         order         = request.GET.get('id',)
-        order_items   = Order.objects.get(id=order).orderitem_set.all()
-        order_options = OrderItem.objects.get(order_id=order).orderoption_set.all()
-        if order_options:
+        order_items   = OrderItem.objects.filter(order_id=order)
+        if OrderOption.objects.filter(order_item__order_id=order):
             total_price   = int(Order.objects.filter(id=order)\
                             .annotate(total=Sum(F('orderitem__product__price')*F('orderitem__quantity')\
                                 +F('orderitem__orderoption__option__price')))[0].total)
@@ -88,12 +87,12 @@ class OrderView(View):
                 'quantity'      : order_item.quantity,
                 'product_name'  : order_item.product.name,
                 'product_image' : order_item.product.thumbnail,
-                'price'         : int((order_item.quantity)*(order_item.product.price))
-            } for order_item in order_items],
-            'product_options': [{
-                'option_name'  : order_option.option.name,
-                'option_price' : order_option.option.price
-            } for order_option in order_options],
+                'price'         : int((order_item.quantity)*(order_item.product.price)),
+                'product_options': [{
+                    'option_name'  : order_option.option.name,
+                    'option_price' : order_option.option.price
+                } for order_option in order_item.orderoption_set.all()] 
+            }for order_item in order_items],
             'total_price' : total_price
         }]
 
