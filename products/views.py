@@ -25,10 +25,10 @@ class ProductListView(View):
             q &= Q(name__icontains=searching)
 
         sort_type = {
-            'id'     : 'id',
-            'rec'    : '?',
-            'desc'   : '-price',
-            'asc'    : 'price'
+            'id'   : 'id',
+            'rec'  : '?',
+            'desc' : '-price',
+            'asc'  : 'price'
         }
 
         products = Product.objects.select_related('sub_category')\
