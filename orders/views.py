@@ -8,7 +8,7 @@ from enum             import Enum
 
 from users.utils   import login_required
 from users.models  import User
-from carts.models  import Cart, CartOption
+from carts.models  import Cart
 from orders.models import Order, OrderItem, OrderOption, OrderStatus
 
 class OrederStatusEnum(Enum):
@@ -21,42 +21,49 @@ class OrederStatusEnum(Enum):
 class OrderView(View):
     @login_required
     def post(self, request):
-        data     = json.loads(request.body)
-        user     = request.user
-        cart_ids = data['cart_ids']
-        carts    = Cart.objects.filter(id__in=cart_ids, user=user)
-
         try:
+            data     = json.loads(request.body)
+            user     = request.user
+            cart_ids = data['cart_ids']
+            carts    = Cart.objects.filter(id__in=cart_ids, user=user)
+
             if not carts.exists():
                 return JsonResponse({'message':'NOT_FOUND'}, status=404)
 
             with transaction.atomic():
                 order = Order.objects.create(
                     order_number = uuid.uuid4(),
-                    address      = User.objects.get(id=user.id).address,
+                    address      = user.address,
                     user         = user,
                     order_status = OrderStatus.objects.get(id=OrederStatusEnum.PREPARING.value)
                 )
+                for cart in carts:
+                    order_item = OrderItem.objects.create(
+                        order      = order,
+                        product    = cart.product,
+                        quantity   = cart.quantity 
+                    )
 
-                order_items = [OrderItem(
-                    order      = order,
-                    product    = cart.product,
-                    quantity   = cart.quantity 
-                )for cart in carts]
-                OrderItem.objects.bulk_create(order_items)
+                    cart_options  = cart.cartoption_set.all()
+                    order_options = [OrderOption(
+                        option     = cart_option.option,
+                        order_item = order_item
+                    ) for cart_option in cart_options]
 
-                cart_options = CartOption.objects.filter(cart__in=cart_ids)
-                order_options = [OrderOption(
-                    option     = cart_option.option,
-                    order_item = OrderItem.objects.get(order_id=order)
-                ) for cart_option in cart_options]
+                    OrderOption.objects.bulk_create(order_options)
+
                 carts.delete()
-                OrderOption.objects.bulk_create(order_options)
-
-            return JsonResponse({'message':order.id}, status=201)
+                response = {
+                    "message" : "created",
+                    "data"    : {
+                        "order_id"     : order.id,
+                        "order_number" : order.order_number
+                    }
+                }
+            return JsonResponse(response, status=201)
 
         except transaction.TransactionManagementError:
-            return JsonResponse({'message':'TransactionManagementError'}, status=401)  
+            return JsonResponse({'message':'TransactionManagementError'}, status=400)  
 
     @login_required
     def get(self, request):
