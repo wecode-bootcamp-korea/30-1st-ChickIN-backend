@@ -70,10 +70,13 @@ class OrderView(View):
         user          = request.user
         order         = request.GET.get('id',)
         order_items   = OrderItem.objects.filter(order_id=order)
-        if OrderOption.objects.filter(order_item__order_id=order):
+        order_options = OrderOption.objects.filter(order_item__order_id=order)
+
+        if order_options:
             total_price   = int(Order.objects.filter(id=order)\
                             .annotate(total=Sum(F('orderitem__product__price')*F('orderitem__quantity')\
                                 +F('orderitem__orderoption__option__price')))[0].total)
+                                
         else:
             total_price   = int(Order.objects.filter(id=order)\
                             .annotate(total=Sum(F('orderitem__product__price')*F('orderitem__quantity')))[0].total)
@@ -100,12 +103,12 @@ class OrderView(View):
 
     @login_required
     def patch(self, request):
-        data     = json.loads(request.body)
-        order_id = data['order_id']
-
         try:
-            Order.objeccts.filter(id=order_id).update(order_status=OrederStatusEnum.ORDER_CANCELLED.value)
-            return JsonResponse({'message':'SUCCESS'}, status=200)
+            data = json.loads(request.body)
+
+            with transaction.atomic():
+                Order.objects.filter(id=data['order_id']).update(order_status=OrederStatusEnum.ORDER_CANCELLED.value)
+                return JsonResponse({'message':'SUCCESS'}, status=200)
 
         except Order.DoesNotExist:
             return JsonResponse({'message':'NOT_FOUND'}, status=404)
