@@ -5,14 +5,6 @@ from django.db.models import Q
 from products.models import Product
 
 class ProductListView(View):
-    """
-    목적: 여러 상품의 정보를 조회(get method)
-
-    1. Product.objects.all()
-    2. filter 1개 추가
-
-    10. filter 요소 4개, sort, pagination
-    """
     def get(self, request):
         main_category = request.GET.get('main_category')
         sub_category  = request.GET.get('sub_category')
@@ -33,10 +25,10 @@ class ProductListView(View):
             q &= Q(name__icontains=searching)
 
         sort_type = {
-            'id' : 'id',
-            '1' : '?',
-            '2' : '-price',
-            '3' : 'price'
+            'id'     : 'id',
+            'rec'    : '?',
+            'desc'   : '-price',
+            'asc'    : 'price'
         }
 
         products = Product.objects.select_related('sub_category')\

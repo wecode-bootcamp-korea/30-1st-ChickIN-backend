@@ -49,7 +49,7 @@ class LogInView(View):
             password        = data['password']
             user            = User.objects.get(email = email)
             hashed_password = user.password.encode('utf-8')
-            access_token    = jwt.encode({'user.id':user.id}, SECRET_KEY, ALGORITHM)
+            access_token    = jwt.encode({'user_id':user.id}, SECRET_KEY, ALGORITHM)
 
             if not bcrypt.checkpw(password.encode('utf-8'), hashed_password):
                 return JsonResponse({'message' : 'INVALID_USER'}, status = 401)
