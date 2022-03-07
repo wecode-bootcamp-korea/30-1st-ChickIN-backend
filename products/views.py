@@ -5,44 +5,50 @@ from django.db.models import Q
 from products.models import Product
 
 class ProductListView(View):
+    """
+    목적: 여러 상품의 정보를 조회(get method)
+
+    1. Product.objects.all()
+    2. filter 1개 추가
+
+    10. filter 요소 4개, sort, pagination
+    """
     def get(self, request):
-        try:
-            main_category = request.GET.get('main_category', None)
-            sub_category  = request.GET.get('sub_category', None)
-            searching     = request.GET.get('name', None)
-            sort          = request.GET.get('sort', '0')
-            limit         = int(request.GET.get('limit', 36))
-            offset        = int(request.GET.get('offset', 0))
-            product_list  = []
+        main_category = request.GET.get('main_category')
+        sub_category  = request.GET.get('sub_category')
+        searching     = request.GET.get('name')
+        sort          = request.GET.get('sort', 'id')
+        limit         = int(request.GET.get('limit', 36))
+        offset        = int(request.GET.get('offset', 0))
+
+        q = Q()
             
-            q = Q()
-            
-            if main_category:
-                q &= Q(sub_category__main_category_id=main_category)
-            if sub_category:
-                q &= Q(sub_category_id=sub_category)
-            if searching:
-                q &= Q(name__icontains=searching)
-            sort_type = {
-                '0' : 'id',
-                '1' : '?',
-                '2' : '-price',
-                '3' : 'price'
-            }
-            products = Product.objects.select_related('sub_category')\
-                .filter(q).order_by(sort_type[sort])[offset:offset+limit]
+        if main_category:
+            q &= Q(sub_category__main_category_id=main_category)
 
-            product_list = [{
-                        'thumbnail' : product.thumbnail,
-                        'name'      : product.name,
-                        'price'     : product.price
-                    } for product in products]
+        if sub_category:
+            q &= Q(sub_category_id=sub_category)
 
-            return JsonResponse({'products_list':product_list}, status=200)
+        if searching:
+            q &= Q(name__icontains=searching)
 
-        except Product.DoesNotExist:
-            return JsonResponse({'message':'NOT_FOUND'}, status=404)
+        sort_type = {
+            'id' : 'id',
+            '1' : '?',
+            '2' : '-price',
+            '3' : 'price'
+        }
 
+        products = Product.objects.select_related('sub_category')\
+            .filter(q).order_by(sort_type[sort])[offset:offset+limit]
+
+        product_list = [{
+            'thumbnail' : product.thumbnail,
+            'name'      : product.name,
+            'price'     : product.price
+        } for product in products]
+
+        return JsonResponse({'products_list':product_list}, status=200)
 
 class ProductDetailView(View):
     def get(self, request, product_id):
