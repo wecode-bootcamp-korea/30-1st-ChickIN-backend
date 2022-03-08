@@ -1,5 +1,4 @@
 import json
-from statistics import quantiles
 
 from django.http      import JsonResponse
 from django.views     import View
