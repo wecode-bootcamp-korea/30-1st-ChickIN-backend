@@ -21,13 +21,13 @@ class SignUpView(View):
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
             if not validate_email(email):
-                return JsonResponse({'messasge':'INVALID EMAIL'}, status=400)
+                return JsonResponse({'message':'INVALID EMAIL'}, status=400)
             
             if not validate_password(password):
-                return JsonResponse({'messasge':'INVALID PASSWORD'}, status=400) 
+                return JsonResponse({'message':'INVALID PASSWORD'}, status=400) 
             
             if User.objects.filter(email = email).exists():
-                return JsonResponse({'messasge':'E-MAIL ALREADY EXISTED'}, status=400)
+                return JsonResponse({'message':'E-MAIL ALREADY EXISTED'}, status=400)
 
             User.objects.create(
                 username     = username,
