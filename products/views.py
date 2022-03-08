@@ -63,4 +63,3 @@ class ProductDetailView(View):
 
         except Product.DoesNotExist:
             return JsonResponse({'message':'NOT_FOUND'}, status=404)
-
