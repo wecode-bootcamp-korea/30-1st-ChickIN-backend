@@ -16,6 +16,7 @@ class CartView(View):
             user       = request.user
             product_id = data['product_id']
             option_ids = data['option_ids'] 
+            options    = Option.objects.filter(id__in=option_ids)
             quantity   = int(data['quantity'])
             is_added   = False
 
@@ -25,7 +26,6 @@ class CartView(View):
             with transaction.atomic():
                 for cart in Cart.objects.filter(product_id=product_id, user=user):
                     cart_options = Option.objects.filter(cartoption__cart=cart)
-                    options      = Option.objects.filter(id__in=option_ids)
                     
                     if set(cart_options) == set(options):
                         is_added = True
@@ -34,7 +34,7 @@ class CartView(View):
                 if is_added:
                     cart.quantity += quantity
                     cart.save()
-                    return JsonResponse({"message" : "SUCCESS"}, status=201)
+                    return JsonResponse({"message" : "SUCCESS"}, status=200)
                 
                 cart = Cart.objects.create(
                     user_id    = user.id,
@@ -42,14 +42,15 @@ class CartView(View):
                     quantity   = quantity,
                 )
                 
-                options = Option.objects.filter(id__in=option_ids)
                 cart_options =[CartOption(
-                            cart_id   = cart.id,
-                            option_id = option.id,
-                        )for option in options]
+                    cart_id   = cart.id,
+                    option_id = option.id,
+                )for option in options]
                 
                 CartOption.objects.bulk_create(cart_options)
 
             return JsonResponse({"message" : "SUCCESS"}, status=201) 
         except KeyError:
             return JsonResponse({"message" : "KEY ERROR"}, status=400)
+        except transaction.TransactionManagementError:
+            return JsonResponse({"message" : "TransactionManagementError"}, status=400)
