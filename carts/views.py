@@ -72,5 +72,23 @@ class CartView(View):
             return JsonResponse({"message" : "SUCCESS"}, status=201) 
         except KeyError:
             return JsonResponse({"message" : "KEY ERROR"}, status=400)
+    
+    @login_required
+    def patch(self, request):
+        try:
+            data     = json.loads(request.body)
+            user     = request.user.id
+            cart_id  = data['cart_id']
+            quantity = data["quantity"]
+            cart     = Cart.objects.get(id=cart_id, user_id=user)
+
+            cart.quantity = quantity
+            cart.save()
+
+            return JsonResponse({"message":"SUCCESS"}, status=200)
+        except KeyError:
+            return JsonResponse({"message":"KEY ERROR"}, status=400)
+        except Cart.DoesNotExist:
+            return JsonResponse({"message":"Cart Does Not Exist"}, status=404)
         except transaction.TransactionManagementError:
             return JsonResponse({"message" : "TransactionManagementError"}, status=400)
