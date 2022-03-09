@@ -3,15 +3,14 @@ import json, uuid
 from django.http      import JsonResponse
 from django.views     import View
 from django.db        import transaction
-from django.db.models import F, Sum
+from json             import JSONDecodeError
 from enum             import Enum
 
 from users.utils   import login_required
-from users.models  import User
 from carts.models  import Cart
-from orders.models import Order, OrderItem, OrderOption, OrderStatus
+from orders.models import Order, OrderItem, OrderOption
 
-class OrederStatusEnum(Enum):
+class OrderStatusEnum(Enum):
     PAID            = 1
     PREPARING       = 2
     SHIPPEND        = 3
@@ -27,10 +26,10 @@ class OrderNowView(View):
 
             with transaction.atomic():
                 order = Order.objects.create(
-                    order_number = uuid.uuid4(),
-                    address      = user.address,
-                    user         = user,
-                    order_status = OrderStatus.objects.get(id=OrederStatusEnum.PREPARING.value)
+                    order_number    = uuid.uuid4(),
+                    address         = user.address,
+                    user            = user,
+                    order_status_id = OrderStatusEnum.PREPARING.value
                 )
 
                 order_item  = OrderItem.objects.create(
@@ -39,11 +38,13 @@ class OrderNowView(View):
                     quantity   = data['quantity']
                 )
 
-                if data.get('option_id'):
-                    OrderOption.objects.create(
-                        option_id  = data['option_id'],
+                if data.get('option_ids'):
+                    order_options = [OrderOption(
+                        option_id  = option_id,
                         order_item = order_item
-                    )
+                    ) for option_id in data['option_ids']]
+                    
+                    OrderOption.objects.bulk_create(order_options)
 
                 response = {
                     "message" : "created",
@@ -57,3 +58,5 @@ class OrderNowView(View):
         except transaction.TransactionManagementError:
             return JsonResponse({'message':'TransactionManagementError'}, status=400) 
 
+        except JSONDecodeError:
+            return JsonResponse({'message':'JSONDecodeError'}, status=400)
