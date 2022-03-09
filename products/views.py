@@ -9,7 +9,7 @@ class ProductListView(View):
         main_category = request.GET.get('main_category')
         sub_category  = request.GET.get('sub_category')
         searching     = request.GET.get('name')
-        sort          = request.GET.get('sort', 'id')
+        sort          = request.GET.get('sort', 'id') # sort입력하지 않아도 기본값 id
         limit         = int(request.GET.get('limit', 36))
         offset        = int(request.GET.get('offset', 0))
 
@@ -26,7 +26,7 @@ class ProductListView(View):
 
         sort_type = {
             'id'   : 'id',
-            'rec'  : '?',
+            'rec'  : '?', # 랜덤순 정렬 -> 추천순에 쓰려고 함
             'desc' : '-price',
             'asc'  : 'price'
         }
