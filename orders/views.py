@@ -3,12 +3,12 @@ import json, uuid
 from django.http      import JsonResponse
 from django.views     import View
 from django.db        import transaction
+from json             import JSONDecodeError
 from enum             import Enum
 
 from users.utils   import login_required
-from users.models  import User
 from carts.models  import Cart
-from orders.models import Order, OrderItem, OrderOption, OrderStatus
+from orders.models import Order, OrderItem, OrderOption
 
 class OrderView(View):
     @login_required
