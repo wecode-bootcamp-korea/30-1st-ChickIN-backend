@@ -81,10 +81,10 @@ class CartView(View):
             cart_id  = data['cart_id']
             quantity = data["quantity"]
             cart     = Cart.objects.get(id=cart_id, user_id=user)
-
+            
             cart.quantity = quantity
             cart.save()
-
+            
             return JsonResponse({"message":"SUCCESS"}, status=200)
         except KeyError:
             return JsonResponse({"message":"KEY ERROR"}, status=400)
@@ -92,3 +92,20 @@ class CartView(View):
             return JsonResponse({"message":"Cart Does Not Exist"}, status=404)
         except transaction.TransactionManagementError:
             return JsonResponse({"message" : "TransactionManagementError"}, status=400)
+    
+    @login_required
+    def delete(self, request):
+        try:
+            data     = json.loads(request.body)
+            user     = request.user
+            cart_ids = data['cart_ids']
+            carts    = Cart.objects.filter(id__in=cart_ids, user_id=user.id)
+            
+            if not carts:
+                return JsonResponse({"message" : "CARTS DOES NOT EXIST"}, status=404)
+            
+            carts.delete()
+            
+            return JsonResponse({"message" : "SUCCESS"}, status=200)
+        except KeyError:
+            return JsonResponse({"message" : "KEY ERROR"}, status=400)
