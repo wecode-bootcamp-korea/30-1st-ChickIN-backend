@@ -33,9 +33,9 @@ class OrderView(View):
                 'order_cancelled' : OrderStatusEnum.ORDER_CANCELLED.value
             }
 
-            order = Order.objects.get(user=user, order_id=order_id)
+            order = Order.objects.get(user=user, id=order_id)
 
-            order.order_status = order_status[status]
+            order.order_status_id = order_status[status]
             order.save()
 
             return JsonResponse({'message':'SUCCESS'}, status=200)
