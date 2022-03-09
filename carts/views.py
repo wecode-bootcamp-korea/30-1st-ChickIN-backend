@@ -1,3 +1,4 @@
+from genericpath import exists
 import json
 
 from django.http      import JsonResponse
@@ -39,7 +40,8 @@ class CartView(View):
             cart.quantity = quantity
             cart.save()
 
-            return JsonResponse({"message":"SUCCESS"}, status=201)
+            return JsonResponse({"message":"SUCCESS"}, status=200)
         except KeyError:
             return JsonResponse({"message":"KEY ERROR"}, status=401)
-    
+        except Cart.DoesNotExist:
+            return JsonResponse({"message":"Cart Does Not Exist"}, status=401)
