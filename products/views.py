@@ -35,6 +35,7 @@ class ProductListView(View):
             .filter(q).order_by(sort_type[sort])[offset:offset+limit]
 
         product_list = [{
+            'id'        : product.id,
             'thumbnail' : product.thumbnail,
             'name'      : product.name,
             'price'     : product.price
