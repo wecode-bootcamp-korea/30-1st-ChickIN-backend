@@ -1,3 +1,4 @@
+from http.client import NOT_FOUND
 import json
 
 from django.http      import JsonResponse
@@ -81,10 +82,10 @@ class CartView(View):
             cart_id  = data['cart_id']
             quantity = data["quantity"]
             cart     = Cart.objects.get(id=cart_id, user_id=user)
-
+            
             cart.quantity = quantity
             cart.save()
-
+            
             return JsonResponse({"message":"SUCCESS"}, status=200)
         except KeyError:
             return JsonResponse({"message":"KEY ERROR"}, status=400)
@@ -92,3 +93,19 @@ class CartView(View):
             return JsonResponse({"message":"Cart Does Not Exist"}, status=404)
         except transaction.TransactionManagementError:
             return JsonResponse({"message" : "TransactionManagementError"}, status=400)
+    
+    @login_required
+    def delete(self, request):
+        try:
+            user     = request.user
+            cart_ids = request.GET.get('cart_ids').split(',')
+            carts    = Cart.objects.filter(id__in=cart_ids, user=user)
+            
+            if not carts:
+                return JsonResponse({"message" : "CARTS DOES NOT EXIST"}, status=404)
+            
+            carts.delete()
+            
+            return JsonResponse({"message" : "SUCCESS"}, status=200)
+        except Cart.DoesNotExist:
+            return JsonResponse({"message" : "NOT FOUND"}, status=404)
