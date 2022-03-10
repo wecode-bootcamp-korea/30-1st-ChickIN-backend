@@ -23,7 +23,7 @@ class OrderView(View):
         try:
             data     = json.loads(request.body)
             user     = request.user
-            cart_ids = data['cart_ids']
+            cart_ids = data['cart_ids'] # 리스트 형식으로 cart_id들을 받는다.
             carts    = Cart.objects.filter(id__in=cart_ids, user=user)
 
             if not carts.exists():
@@ -36,7 +36,7 @@ class OrderView(View):
                     user            = user,
                     order_status_id = OrderStatusEnum.PREPARING.value
                 )
-                for cart in carts:
+                for cart in carts: # 각각의 cart를 돈다.
                     order_item = OrderItem.objects.create(
                         order      = order,
                         product    = cart.product,
