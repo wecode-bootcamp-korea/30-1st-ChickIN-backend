@@ -1,10 +1,10 @@
 import json, uuid
+from json             import JSONDecodeError
+from enum             import Enum
 
 from django.http      import JsonResponse
 from django.views     import View
 from django.db        import transaction
-from json             import JSONDecodeError
-from enum             import Enum
 
 from users.utils   import login_required
 from carts.models  import Cart
@@ -160,4 +160,3 @@ class OrderNowView(View):
 
         except JSONDecodeError:
             return JsonResponse({'message':'JSONDecodeError'}, status=400)
-

@@ -55,6 +55,7 @@ class ProductDetailView(View):
                     'price'       : product.price,
                     'description' : product.description,
                     'option'      : [{
+                        'id'    : option.id,
                         'name'  : option.name,
                         'price' : option.price
                     } for option in options]
