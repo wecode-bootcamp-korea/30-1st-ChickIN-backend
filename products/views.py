@@ -50,6 +50,7 @@ class ProductDetailView(View):
             options = product.options.all()
 
             data = {
+                    'id'          : product.id,
                     'image'       : [image.image_url for image in product.productimage_set.all()],
                     'name'        : product.name,
                     'price'       : product.price,
