@@ -26,7 +26,7 @@ class ProductListView(View):
 
         sort_type = {
             'id'   : 'id',
-            'rec'  : '?',
+            'rec'  : '?', 
             'desc' : '-price',
             'asc'  : 'price'
         }
@@ -35,6 +35,7 @@ class ProductListView(View):
             .filter(q).order_by(sort_type[sort])[offset:offset+limit]
 
         product_list = [{
+            'id'        : product.id,
             'thumbnail' : product.thumbnail,
             'name'      : product.name,
             'price'     : product.price
@@ -54,6 +55,7 @@ class ProductDetailView(View):
                     'price'       : product.price,
                     'description' : product.description,
                     'option'      : [{
+                        'id'    : option.id,
                         'name'  : option.name,
                         'price' : option.price
                     } for option in options]
