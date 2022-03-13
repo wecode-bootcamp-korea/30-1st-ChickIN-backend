@@ -1,3 +1,6 @@
+![header](https://capsule-render.vercel.app/api?type=waving&color=FFCC51&height=100&section=header&fontSize=90)
+
+
 <img src="https://user-images.githubusercontent.com/61664975/158049694-3f5432ba-2a22-4fe1-b4d7-2dd5b4065892.jpg">
 
 <br><br>
@@ -120,3 +123,5 @@ a
 * 실수수준의 프로젝트이지만 학습용으로 만들었기 떄문에 이 코드를 활용하여 이득을 취하거나 무단 배포할 경우 법적으로 문제될 수 있습니다.
 * 이 프로젝트에서 사용하고 있는 사진 대부분은 위코드에서 구매한 것이므로 해당 프로젝트 외부인이 사용할 수 없습니다
 * 이 프로젝트에서 사용하고 있는 로고와 배너는 해당 프로젝트 팀원 소유이므로 해당 프로젝트 외부인이 사용할 수 없습니다
+
+![Footer](https://capsule-render.vercel.app/api?type=waving&color=ffcc51&height=100&section=footer)
